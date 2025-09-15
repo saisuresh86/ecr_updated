@@ -1,0 +1,29 @@
+---
+- name: Cancel Patch
+  hosts: localhost
+  gather_facts: no
+  vars:
+    dashboard_ip: "127.0.0.1"
+    ticket_id: "{{ lookup('pipe', 'uuidgen') }}"
+    status_api: "http://{{ dashboard_ip }}:5000/api/status"
+
+  tasks:
+    - name: ❌ Update dashboard - Approval Denied
+      uri:
+        url: "{{ status_api }}"
+        method: POST
+        body_format: json
+        body:
+          ticket_id: "{{ ticket_id }}"
+          stage: "Approval"
+          status: "Denied"
+
+    - name: 🚫 Update dashboard - Patching Cancelled
+      uri:
+        url: "{{ status_api }}"
+        method: POST
+        body_format: json
+        body:
+          ticket_id: "{{ ticket_id }}"
+          stage: "Patching"
+          status: "Cancelled"

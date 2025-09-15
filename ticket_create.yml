@@ -1,0 +1,30 @@
+---
+- name: Create Ticket
+  hosts: localhost
+  gather_facts: no
+  vars:
+    dashboard_ip: "127.0.0.1"
+    ticket_id: "{{ lookup('pipe', 'uuidgen') }}"
+    ticket_api: "http://{{ dashboard_ip }}:5000/api/tickets"
+    status_api: "http://{{ dashboard_ip }}:5000/api/status"
+
+  tasks:
+    - name: 🔖 Create ticket
+      uri:
+        url: "{{ ticket_api }}"
+        method: POST
+        body_format: json
+        body:
+          ticket_id: "{{ ticket_id }}"
+          stage: "Ticket Creation"
+          status: "Created"
+
+    - name: ✅ Update dashboard - Ticket Created
+      uri:
+        url: "{{ status_api }}"
+        method: POST
+        body_format: json
+        body:
+          ticket_id: "{{ ticket_id }}"
+          stage: "Ticket Creation"
+          status: "Completed"
