@@ -3,7 +3,7 @@
   hosts: localhost
   gather_facts: no
   vars:
-    dashboard_ip: "127.0.0.1"
+    dashboard_ip: "{{ dashboard_ip | default('127.0.0.1') }}"
     ticket_id: "{{ lookup('pipe', 'uuidgen') }}"
     ticket_api: "http://{{ dashboard_ip }}:5000/api/tickets"
     status_api: "http://{{ dashboard_ip }}:5000/api/status"
