@@ -45,6 +45,11 @@
       debug:
         var: create_response.json
 
+    - name: Set ticket_id fact for workflow
+      set_stats:
+        data:
+           ticket_id: "{{ ticket_id }}"
+
     - name: Debug status update response
       debug:
         var: status_response.json
