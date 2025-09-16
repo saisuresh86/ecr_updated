@@ -4,7 +4,7 @@
   connection: local
   gather_facts: no
   vars:
-    dashboard_ip: "172.31.46.205"   # override with -e if needed
+    dashboard_ip: "127.0.0.1"   # override with -e if needed
     ticket_id: "{{ lookup('pipe', 'uuidgen') }}"
     status_api: "http://{{ dashboard_ip }}:5000/api/status"
     patch_env: "dev"
