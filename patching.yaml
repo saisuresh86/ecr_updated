@@ -3,12 +3,12 @@
   hosts: localhost
   gather_facts: no
   vars:
-    dashboard_ip: "{{ dashboard_ip | default('127.0.0.1') }}"
+    dashboard_ip: "172.31.46.205"   # override if needed with -e
     ticket_id: "{{ lookup('pipe', 'uuidgen') }}"
     status_api: "http://{{ dashboard_ip }}:5000/api/status"
 
   tasks:
-    - name: 📅 Update dashboard - Scheduled
+    - name:  Update dashboard - Scheduled
       uri:
         url: "{{ status_api }}"
         method: POST
@@ -17,13 +17,16 @@
           ticket_id: "{{ ticket_id }}"
           stage: "Scheduling"
           status: "Scheduled to start in 10 minutes"
+          activity: "Patching"
+          impact: "P3"
+          environment: "dev"
 
-    - name: ⏳ Wait for scheduled patch time
+    - name: Wait for scheduled patch time
       pause:
         minutes: 10
         prompt: "Waiting 10 minutes before patching begins..."
 
-    - name: ✅ Update dashboard - Patching Started
+    - name:  Update dashboard - Patching Started
       uri:
         url: "{{ status_api }}"
         method: POST
@@ -32,11 +35,14 @@
           ticket_id: "{{ ticket_id }}"
           stage: "Patching"
           status: "In Progress"
+          activity: "Patching"
+          impact: "P3"
+          environment: "dev"
 
-    - name: 🛠️ Simulate patching
+    - name:  Simulate patching
       shell: "echo 'Patching server for ticket {{ ticket_id }}'"
 
-    - name: ✅ Update dashboard - Patching Completed
+    - name:  Update dashboard - Patching Completed
       uri:
         url: "{{ status_api }}"
         method: POST
@@ -45,3 +51,6 @@
           ticket_id: "{{ ticket_id }}"
           stage: "Patching"
           status: "Completed"
+          activity: "Patching"
+          impact: "P3"
+          environment: "dev"
