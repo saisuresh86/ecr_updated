@@ -1,0 +1,48 @@
+- name: Create Ticket for Patching Activity
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    dashboard_ip: "127.0.0.1"
+    ticket_id: "{{ lookup('pipe','uuidgen') }}"
+    ticket_api: "http://{{ dashboard_ip }}:5000/api/tickets"
+    status_api: "http://{{ dashboard_ip }}:5000/api/status"
+    patch_env: "dev"
+    impact: "P3"
+
+  tasks:
+    - name: Create ticket
+      uri:
+        url: "{{ ticket_api }}"
+        method: POST
+        body_format: json
+        body:
+          ticket_id: "{{ ticket_id }}"
+          stage: "Ticket Creation"
+          status: "Created"
+          activity: "Patching"
+          impact: "{{ impact }}"
+          environment: "{{ patch_env }}"
+      register: create_response
+
+    - name: Update dashboard - Ticket Created
+      uri:
+        url: "{{ status_api }}"
+        method: POST
+        body_format: json
+        body:
+          ticket_id: "{{ ticket_id }}"
+          stage: "Ticket Creation"
+          status: "Completed"
+          activity: "Patching"
+          impact: "{{ impact }}"
+          environment: "{{ patch_env }}"
+      register: status_response
+
+    - name: Debug ticket creation response
+      debug:
+        var: create_response.json
+
+    - name: Debug status update response
+      debug:
+        var: status_response.json
