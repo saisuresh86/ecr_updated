@@ -5,11 +5,11 @@
   gather_facts: no
   vars:
     dashboard_ip: "52.91.31.135"   # override with -e if needed
-    ticket_id: "{{ lookup('pipe', 'uuidgen') }}"
+    ticket_id: "{{ lookup('pipe', 'uuidgen') }}"   # can also pass from workflow
     status_api: "http://{{ dashboard_ip }}:5000/api/status"
     patch_env: "dev"
     impact: "P3"
-    approve_patching: ""   # default empty; can be set via -e or AWX survey
+    patch_wait_minutes: 3   # override in survey or extra vars
 
   tasks:
     - name: Update dashboard - Scheduled
@@ -20,7 +20,7 @@
         body:
           ticket_id: "{{ ticket_id }}"
           stage: "Scheduling"
-          status: "Scheduled to start in 10 minutes"
+          status: "Scheduled to start in {{ patch_wait_minutes }} minutes"
           activity: "Patching"
           impact: "{{ impact }}"
           environment: "{{ patch_env }}"
@@ -29,24 +29,8 @@
 
     - name: Wait for scheduled patch time
       pause:
-        minutes: 3
-        prompt: "Waiting 3  minutes before patching begins..."
-
-    - name: Ask for approval to proceed (interactive CLI)
-      pause:
-        prompt: "Do you want to proceed with patching? Type 'yes' to continue or 'no' to abort:"
-      register: user_input
-      when: approve_patching == ""
-
-    - name: Set approval variable from input
-      set_fact:
-        approve_patching: "{{ user_input.user_input }}"
-      when: approve_patching == ""
-
-    - name: Fail if patching is denied
-      fail:
-        msg: "Patching was denied by the user."
-      when: approve_patching | lower != 'yes'
+        minutes: "{{ patch_wait_minutes }}"
+        prompt: "Waiting {{ patch_wait_minutes }} minutes before patching begins..."
 
     - name: Update dashboard - Patching Started
       uri:
@@ -80,10 +64,3 @@
           environment: "{{ patch_env }}"
       register: patching_completed_response
       failed_when: patching_completed_response.status != 200
-
-    - name: Debug responses
-      debug:
-        msg:
-          - "Scheduled Response: {{ scheduled_response.json }}"
-          - "Patching Started Response: {{ patching_started_response.json }}"
-          - "Patching Completed Response: {{ patching_completed_response.json }}"
