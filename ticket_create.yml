@@ -1,11 +1,11 @@
----
 - name: Create Ticket for Patching Activity
-  hosts: 172.31.46.205
-  become: true
+  hosts: localhost
+  connection: local
   gather_facts: no
+  become: true
   vars:
-    dashboard_ip: "172.31.46.205"   # Or override with -e "dashboard_ip=172.31.46.205"
-    ticket_id: "{{ lookup('pipe', 'uuidgen') }}"
+    dashboard_ip: "127.0.0.1"   # POC control node
+    ticket_id: "{{ lookup('pipe','uuidgen') }}"
     ticket_api: "http://{{ dashboard_ip }}:5000/api/tickets"
     status_api: "http://{{ dashboard_ip }}:5000/api/status"
 
@@ -45,4 +45,3 @@
     - name: Debug status update response
       debug:
         var: status_response.json
-
