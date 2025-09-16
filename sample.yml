@@ -1,0 +1,6 @@
+- name: Create Ticket
+  hosts: 172.31.46.205
+  become: yes
+  tasks:
+    - name: Run command with elevated privileges
+      command: some_command
