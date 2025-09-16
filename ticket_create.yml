@@ -1,15 +1,15 @@
 ---
-- name: Create Ticket
+- name: Create Ticket for Patching Activity
   hosts: localhost
   gather_facts: no
   vars:
-    dashboard_ip: "{{ dashboard_ip | default('127.0.0.1') }}"
+    dashboard_ip: "172.31.46.205"   # Or override with -e "dashboard_ip=172.31.46.205"
     ticket_id: "{{ lookup('pipe', 'uuidgen') }}"
     ticket_api: "http://{{ dashboard_ip }}:5000/api/tickets"
     status_api: "http://{{ dashboard_ip }}:5000/api/status"
 
   tasks:
-    - name:  Create ticket
+    - name: Create ticket
       uri:
         url: "{{ ticket_api }}"
         method: POST
@@ -18,8 +18,12 @@
           ticket_id: "{{ ticket_id }}"
           stage: "Ticket Creation"
           status: "Created"
+          activity: "Patching"
+          impact: "P3"
+          environment: "dev"
+      register: create_response
 
-    - name:  Update dashboard - Ticket Created
+    - name: Update dashboard - Ticket Created
       uri:
         url: "{{ status_api }}"
         method: POST
@@ -28,3 +32,16 @@
           ticket_id: "{{ ticket_id }}"
           stage: "Ticket Creation"
           status: "Completed"
+          activity: "Patching"
+          impact: "P3"
+          environment: "dev"
+      register: status_response
+
+    - name: Debug ticket creation response
+      debug:
+        var: create_response.json
+
+    - name: Debug status update response
+      debug:
+        var: status_response.json
+
