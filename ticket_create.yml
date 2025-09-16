@@ -1,6 +1,6 @@
 ---
 - name: Create Ticket for Patching Activity
-  hosts: localhost
+  hosts: 172.31.46.205
   become: true
   gather_facts: no
   vars:
