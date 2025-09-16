@@ -24,8 +24,9 @@
           impact: "{{ impact }}"
           environment: "{{ patch_env }}"
       register: create_response
+      failed_when: create_response.status != 200
 
-    - name: Update dashboard - Ticket Created
+    - name: Update ticket status
       uri:
         url: "{{ status_api }}"
         method: POST
@@ -38,6 +39,7 @@
           impact: "{{ impact }}"
           environment: "{{ patch_env }}"
       register: status_response
+      failed_when: status_response.status != 200
 
     - name: Debug ticket creation response
       debug:
