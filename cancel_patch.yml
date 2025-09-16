@@ -3,12 +3,12 @@
   hosts: localhost
   gather_facts: no
   vars:
-    dashboard_ip: "{{ dashboard_ip | default('127.0.0.1') }}"
+    dashboard_ip: "172.31.46.205"   # Or override using -e
     ticket_id: "{{ lookup('pipe', 'uuidgen') }}"
     status_api: "http://{{ dashboard_ip }}:5000/api/status"
 
   tasks:
-    - name: ❌ Update dashboard - Approval Denied
+    - name: Update dashboard - Approval Denied
       uri:
         url: "{{ status_api }}"
         method: POST
@@ -17,8 +17,11 @@
           ticket_id: "{{ ticket_id }}"
           stage: "Approval"
           status: "Denied"
+          activity: "Patching"
+          impact: "P3"
+          environment: "dev"
 
-    - name: 🚫 Update dashboard - Patching Cancelled
+    - name:  Update dashboard - Patching Cancelled
       uri:
         url: "{{ status_api }}"
         method: POST
@@ -27,3 +30,6 @@
           ticket_id: "{{ ticket_id }}"
           stage: "Patching"
           status: "Cancelled"
+          activity: "Patching"
+          impact: "P3"
+          environment: "dev"
