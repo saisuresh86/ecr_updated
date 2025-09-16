@@ -1,6 +1,7 @@
 ---
 - name: Create Ticket for Patching Activity
   hosts: localhost
+  become: true
   gather_facts: no
   vars:
     dashboard_ip: "172.31.46.205"   # Or override with -e "dashboard_ip=172.31.46.205"
