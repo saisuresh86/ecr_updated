@@ -29,7 +29,7 @@
 
     - name: Wait for scheduled patch time
       pause:
-        minutes: 10
+        minutes: 3
         prompt: "Waiting 10 minutes before patching begins..."
 
     - name: Ask for approval to proceed (interactive CLI)
