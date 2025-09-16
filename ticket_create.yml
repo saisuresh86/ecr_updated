@@ -4,10 +4,12 @@
   gather_facts: no
   become: true
   vars:
-    dashboard_ip: "127.0.0.1"   # POC control node
+    dashboard_ip: "127.0.0.1"
     ticket_id: "{{ lookup('pipe','uuidgen') }}"
     ticket_api: "http://{{ dashboard_ip }}:5000/api/tickets"
     status_api: "http://{{ dashboard_ip }}:5000/api/status"
+    patch_env: "dev"
+    impact: "P3"
 
   tasks:
     - name: Create ticket
@@ -20,8 +22,8 @@
           stage: "Ticket Creation"
           status: "Created"
           activity: "Patching"
-          impact: "P3"
-          environment: "dev"
+          impact: "{{ impact }}"
+          environment: "{{ patch_env }}"
       register: create_response
 
     - name: Update dashboard - Ticket Created
@@ -34,8 +36,8 @@
           stage: "Ticket Creation"
           status: "Completed"
           activity: "Patching"
-          impact: "P3"
-          environment: "dev"
+          impact: "{{ impact }}"
+          environment: "{{ patch_env }}"
       register: status_response
 
     - name: Debug ticket creation response
