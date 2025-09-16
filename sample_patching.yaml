@@ -1,0 +1,72 @@
+---
+- name: Apply Patch (Scheduled Start)
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    dashboard_ip: "172.31.46.205"   # override with -e if needed
+    ticket_id: "{{ lookup('pipe', 'uuidgen') }}"
+    status_api: "http://{{ dashboard_ip }}:5000/api/status"
+    patch_env: "dev"
+    impact: "P3"
+
+  tasks:
+    - name: Update dashboard - Scheduled
+      uri:
+        url: "{{ status_api }}"
+        method: POST
+        body_format: json
+        body:
+          ticket_id: "{{ ticket_id }}"
+          stage: "Scheduling"
+          status: "Scheduled to start in 10 minutes"
+          activity: "Patching"
+          impact: "{{ impact }}"
+          environment: "{{ patch_env }}"
+      register: scheduled_response
+      failed_when: scheduled_response.status != 200
+
+    - name: Wait for scheduled patch time
+      pause:
+        minutes: 10
+        prompt: "Waiting 10 minutes before patching begins..."
+
+    - name: Update dashboard - Patching Started
+      uri:
+        url: "{{ status_api }}"
+        method: POST
+        body_format: json
+        body:
+          ticket_id: "{{ ticket_id }}"
+          stage: "Patching"
+          status: "In Progress"
+          activity: "Patching"
+          impact: "{{ impact }}"
+          environment: "{{ patch_env }}"
+      register: patching_started_response
+      failed_when: patching_started_response.status != 200
+
+    - name: Simulate patching
+      shell: "echo 'Patching server for ticket {{ ticket_id }}'"
+
+    - name: Update dashboard - Patching Completed
+      uri:
+        url: "{{ status_api }}"
+        method: POST
+        body_format: json
+        body:
+          ticket_id: "{{ ticket_id }}"
+          stage: "Patching"
+          status: "Completed"
+          activity: "Patching"
+          impact: "{{ impact }}"
+          environment: "{{ patch_env }}"
+      register: patching_completed_response
+      failed_when: patching_completed_response.status != 200
+
+    - name: Debug responses
+      debug:
+        msg:
+          - "Scheduled Response: {{ scheduled_response.json }}"
+          - "Patching Started Response: {{ patching_started_response.json }}"
+          - "Patching Completed Response: {{ patching_completed_response.json }}"
